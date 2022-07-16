@@ -56,7 +56,7 @@ spec:
   gateway: kyma-gateway.kyma-system.svc.cluster.local
   service:
     name: my-service
-    port: 8080
+    port: 8081
     host: my-service
   rules:
     - path: /.*
