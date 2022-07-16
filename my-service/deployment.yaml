@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-service
+  labels:
+    app: my-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-service
+  template:
+    metadata:
+      labels:
+        app: my-service
+    spec:
+      containers:
+      - name: my-service
+        image: ghcr.io/miyasuta/sap-community-code-challenge-cloud-native/my-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        resources:
+            limits:
+              ephemeral-storage: 256M
+              memory: 256M
+              cpu: 100m
+            requests:
+              cpu: 100m
+              ephemeral-storage: 256M
+              memory: 256M
+      imagePullSecrets:
+      - name: regcred
+status: {}
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: my-service
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+
+---
+
+apiVersion: gateway.kyma-project.io/v1alpha1
+kind: APIRule
+metadata:
+  name: my-service
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  service:
+    name: my-service
+    port: 8080
+    host: my-service
+  rules:
+    - path: /.*
+      methods: ["GET"]
+      accessStrategies:
+        - handler: noop
+          config: {}
